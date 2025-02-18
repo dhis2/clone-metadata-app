@@ -1,0 +1,47 @@
+.form {
+    background: white;
+    border: 1px solid var(--colors-grey400);
+    border-radius: 3px;
+    padding: var(--spacers-dp16);
+}
+
+.inline {
+    max-width: 488px;
+    display: flex;
+    gap: 30px;
+}
+
+.incolumn {
+    max-height: 220px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.field {
+    margin-top: var(--spacers-dp12);
+}
+
+.textField {
+    composes: field;
+    max-width: 488px;
+}
+
+.numberField {
+    composes: field;
+    max-width: 150px;
+}
+
+.singleSelectField {
+    composes: field;
+    max-width: 488px;
+}
+
+
+
+.transferFieldHeader {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--colors-grey800);
+    margin: var(--spacers-dp8) 0;
+}

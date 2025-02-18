@@ -1,0 +1,23 @@
+.container {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: 100%;
+}
+
+.content {
+    padding: var(--spacers-dp16);
+    background: var(--colors-grey100);
+}
+
+.nav {
+    background: var(--colors-grey200);
+    border-right: 1px solid var(--colors-grey400);
+}
+
+li.navItem {
+    background: inherit;
+}
+
+li.navItem:hover {
+    background: var(--colors-grey300);
+}

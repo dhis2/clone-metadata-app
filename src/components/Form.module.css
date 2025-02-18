@@ -1,0 +1,18 @@
+.section {
+    margin-bottom: var(--spacers-dp48);
+}
+
+.sectionHeader {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--colors-grey900);
+    margin: 0;
+    margin-bottom: var(--spacers-dp4);
+}
+
+.sectionDescription {
+    font-size: 14px;
+    color: var(--colors-grey800);
+    margin-top: var(--spacers-dp8);
+    margin-bottom: var(--spacers-dp8);
+}
