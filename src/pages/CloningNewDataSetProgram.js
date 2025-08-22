@@ -27,8 +27,10 @@ import {
     FormSection
 } from "../components/Form.js";
 import SharingDialog from '../components/sharingdialog/SharingDialog.js';
-import { useDataMutation, useDataEngine } from '@dhis2/app-runtime';
-import { cloneUser, cloneDataSetMetadata, cloneProgramMetadata } from "../utils/cloneMetadata.js";
+import { useDataMutation, useDataEngine, useAlert } from '@dhis2/app-runtime';
+import { cloneDataSetMetadata } from "../utils/cloneMetadataDataSet.js";
+import { cloneProgramMetadata } from "../utils/cloneMetadataProgram.js";
+import { cloneUser } from "../utils";
 import classes from './CloningNewDataSetProgram.module.css';
 
 const mutation = {
@@ -200,6 +202,14 @@ const CloningNewDataSetProgram = ({ metadata }) => {
         }
     });
     const engine = useDataEngine();
+
+    const { show } = useAlert(
+        ({ message }) => message,
+        {
+            critical: true,
+            duration: 3000
+        }
+    );
 
     const updateSharingSettings = newSharingSettings => {
         setConfiguration({
@@ -446,7 +456,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                         <InputField
                             required
                             name="fromIdx"
-                            label={'From Idx'}
+                            label={'From Index'}
                             type="number"
                             value={configuration.programTemplate.fromIdx}
                             validate={hasValue}
@@ -464,7 +474,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                         <InputField
                             required
                             name="toIdx"
-                            label={'To Idx'}
+                            label={'To Index'}
                             type="number"
                             value={configuration.programTemplate.toIdx}
                             validate={hasValue}
@@ -517,6 +527,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                         name="password"
                         label={'Password'}
                         value={configuration.userTemplate.password}
+                        type="password"
                         validate={hasValue}
                         className={classes.textField}
                         onChange={({value}) => {
@@ -845,74 +856,79 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                         primary
                         type="submit"
                         onClick={async () => {
-                            setProcessing(true);
-                            setSuccess(false);
-                            setError(false);
-                            const baseMetadata = await engine.query({
-                                baseDataSetMetadata: {
-                                    resource: `dataSets/${configuration.dataSetTemplate.id}/metadata`
-                                },
-                                baseProgramMetadata: {
-                                    resource: `programs/${configuration.programTemplate.id}/metadata`
-                                },
-                                baseUser: {
-                                    resource: 'users',
-                                    id: configuration.userTemplate.id,
-                                    params: {
-                                        fields: [
-                                            ":owner",
-                                            "!created",
-                                            "!lastUpdated",
-                                            "!userRoles",
-                                            "userCredentials[:owner,!created,!lastUpdated,!lastUpdatedBy,!user,!lastLogin,!passwordLastUpdated]"
-                                        ]
-                                    }
-                                }
-                            });
-                            // await doWork(configuration,baseMetadata,engine);
-                            let importingData = {
-                                users: []
-                            };
-                            for (let id = parseInt(configuration.programTemplate.fromIdx); id <= parseInt(configuration.programTemplate.toIdx); id++) {
-                                // Clone the users
-                                console.log(`Starting cloning process for user ${id} in instance`);
-                        
-                                const password = configuration.userTemplate.password;
-                                const userRoles = configuration.userTemplate.roles;
-                        
-                                const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
-                                const dataSetMetadata = await cloneDataSetMetadata(`${configuration.dataSetTemplate.prefix}_${id}`,configuration,baseMetadata.baseDataSetMetadata,user.id,engine);
-                                const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
-                            
-                                importingData.users = [
-                                    ...importingData.users,
-                                    ...[user]
-                                ];
-                                for ( const key in dataSetMetadata ) {
-                                    if ( importingData[key] ) {
-                                        importingData[key] = [
-                                            ...importingData[key],
-                                            ...dataSetMetadata[key]
-                                        ]
-                                    }
-                                    else {
-                                        importingData[key] = dataSetMetadata[key]
-                                    }
-                                }
-                                for ( const key in programMetadata ) {
-                                    if ( importingData[key] ) {
-                                        importingData[key] = [
-                                            ...importingData[key],
-                                            ...programMetadata[key]
-                                        ]
-                                    }
-                                    else {
-                                        importingData[key] = programMetadata[key]
-                                    }
-                                }
+                            if (configuration.dataSetTemplate.id === null || configuration.programTemplate.id === null || configuration.userTemplate.id === null || configuration.dataSetTemplate.prefix === null || Number(configuration.dataSetTemplate.fromIdx) < Number(configuration.dataSetTemplate.toIdx) || configuration.userTemplate.password === null) {
+                                show({ message: `Please fill all required fields.` });
                             }
+                            else {
+                                setProcessing(true);
+                                setSuccess(false);
+                                setError(false);
+                                const baseMetadata = await engine.query({
+                                    baseDataSetMetadata: {
+                                        resource: `dataSets/${configuration.dataSetTemplate.id}/metadata`
+                                    },
+                                    baseProgramMetadata: {
+                                        resource: `programs/${configuration.programTemplate.id}/metadata`
+                                    },
+                                    baseUser: {
+                                        resource: 'users',
+                                        id: configuration.userTemplate.id,
+                                        params: {
+                                            fields: [
+                                                ":owner",
+                                                "!created",
+                                                "!lastUpdated",
+                                                "!userRoles",
+                                                "userCredentials[:owner,!created,!lastUpdated,!lastUpdatedBy,!user,!lastLogin,!passwordLastUpdated]"
+                                            ]
+                                        }
+                                    }
+                                });
+                                // await doWork(configuration,baseMetadata,engine);
+                                let importingData = {
+                                    users: []
+                                };
+                                for (let id = parseInt(configuration.programTemplate.fromIdx); id <= parseInt(configuration.programTemplate.toIdx); id++) {
+                                    // Clone the users
+                                    console.log(`Starting cloning process for user ${id} in instance`);
+                            
+                                    const password = configuration.userTemplate.password;
+                                    const userRoles = configuration.userTemplate.roles;
+                            
+                                    const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
+                                    const dataSetMetadata = await cloneDataSetMetadata(`${configuration.dataSetTemplate.prefix}_${id}`,configuration,baseMetadata.baseDataSetMetadata,user.id,engine);
+                                    const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
+                                
+                                    importingData.users = [
+                                        ...importingData.users,
+                                        ...[user]
+                                    ];
+                                    for ( const key in dataSetMetadata ) {
+                                        if ( importingData[key] ) {
+                                            importingData[key] = [
+                                                ...importingData[key],
+                                                ...dataSetMetadata[key]
+                                            ]
+                                        }
+                                        else {
+                                            importingData[key] = dataSetMetadata[key]
+                                        }
+                                    }
+                                    for ( const key in programMetadata ) {
+                                        if ( importingData[key] ) {
+                                            importingData[key] = [
+                                                ...importingData[key],
+                                                ...programMetadata[key]
+                                            ]
+                                        }
+                                        else {
+                                            importingData[key] = programMetadata[key]
+                                        }
+                                    }
+                                }
 
-                            await mutate({ data: importingData });
+                                await mutate({ data: importingData });
+                            }
                         }}
                     >
                         Clone

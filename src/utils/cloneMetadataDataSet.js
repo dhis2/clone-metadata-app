@@ -1,4 +1,8 @@
-import { copy, prefix } from "./utils.js";
+import { 
+    copy, 
+    prefix, 
+    getIds 
+} from "./index.js";
 
 // export const doWork = async (configuration,baseMetadata,engine) => {
 //     for (let id = parseInt(configuration.dataSetTemplate.fromIdx); id <= parseInt(configuration.dataSetTemplate.toIdx); id++) {
@@ -19,38 +23,6 @@ import { copy, prefix } from "./utils.js";
 //         });
 //     }
 // }
-
-const getIds = async (engine,limit = 1) => {
-    const request = await engine.query({
-        ids: {
-            resource: "system/id",
-            params: {
-                limit: limit
-            }
-        }
-    });
-    return request.ids.codes;
-}
-
-export const cloneUser = async (id,baseUser,password,userRoles,engine) => {
-    const newIds = (await getIds(engine,2));
-    const user = copy(baseUser);
-    user.id = newIds[0];
-    user.firstName = prefix(id, baseUser.firstName);
-    user.userCredentials.id = newIds[1];
-    // user.userCredentials.userInfo.id = newIds[0];
-    user.userCredentials.username = `${baseUser.username}_${id}`;
-    user.userCredentials.password = password;
-    user.userCredentials.userRoles = userRoles.map( id => ({ id: id }));
-
-    // await engine.mutate({
-    //     resource: "users",
-    //     type: "create",
-    //     data: user
-    // });
-
-    return user;
-}   
 
 export const cloneDataSetMetadata = async (id,configuration,baseDataSetMetadata,userId,engine) => {
     const dataSetMetadata = copy(baseDataSetMetadata);
@@ -80,13 +52,14 @@ export const cloneDataSetMetadata = async (id,configuration,baseDataSetMetadata,
     delete dataSetMetadata.categoryOptions;
     delete dataSetMetadata.categoryCombos;
     delete dataSetMetadata.categoryOptionCombos;
+    delete dataSetMetadata.legendSets;
+    delete dataSetMetadata.legends;
 
     if ( !configuration.dataSetDependencies.dataElements ) {
         delete dataSetMetadata.dataElements;
     }
 
     await assignDataSetMetadataSharing(configuration,dataSetMetadata,userId);
-    console.log("DONE", dataSetMetadata);
 
     return dataSetMetadata;
 }

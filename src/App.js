@@ -46,7 +46,7 @@ const query = {
 
 const App = () => {
 
-    const [menu, setMenu] = useState("");
+    const [menu, setMenu] = useState("dataSet");
 
     // const { isDisconnected: offline } = useDhis2ConnectionStatus();
     const { loading, error, data } = useDataQuery(query);
@@ -84,19 +84,19 @@ const App = () => {
                         <MenuItem 
                             active={menu === "program"}
                             onClick={() => setMenu("program")}
-                            label={"Program"}
+                            label={"Clone Programs"}
                             className={classes.navItem}
                         />
                         <MenuItem 
                             active={menu === "dataSet"}
                             onClick={() => setMenu("dataSet")}
-                            label={"Data Set"}
+                            label={"Clone Data Sets"}
                             className={classes.navItem}
                         />
                         <MenuItem 
                             active={menu === "all"}
                             onClick={() => setMenu("all")}
-                            label={"Data Set and Program"}
+                            label={"Clone Data Sets and Programs"}
                             className={classes.navItem}
                         />
                     </Menu>

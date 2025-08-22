@@ -27,8 +27,9 @@ import {
     FormSection
 } from "../components/Form.js";
 import SharingDialog from '../components/sharingdialog/SharingDialog.js';
-import { useDataMutation, useDataEngine } from '@dhis2/app-runtime';
-import { cloneUser, cloneProgramMetadata } from "../utils/cloneMetadataProgram.js";
+import { useDataMutation, useDataEngine, useAlert } from '@dhis2/app-runtime';
+import { cloneProgramMetadata } from "../utils/cloneMetadataProgram.js";
+import { cloneUser } from "../utils";
 import classes from './CloningNewProgram.module.css';
 
 const mutation = {
@@ -153,6 +154,14 @@ const CloningNewProgram = ({ metadata }) => {
 
     const [mutate, { error, data }] = useDataMutation(mutation);
     const engine = useDataEngine();
+
+    const { show } = useAlert(
+        ({ message }) => message,
+        {
+            critical: true,
+            duration: 3000
+        }
+    );
 
     const updateSharingSettings = newSharingSettings => {
         setConfiguration({
@@ -333,7 +342,7 @@ const CloningNewProgram = ({ metadata }) => {
                         <InputField
                             required
                             name="fromIdx"
-                            label={'From Idx'}
+                            label={'From Index'}
                             type="number"
                             value={configuration.programTemplate.fromIdx}
                             validate={hasValue}
@@ -351,7 +360,7 @@ const CloningNewProgram = ({ metadata }) => {
                         <InputField
                             required
                             name="toIdx"
-                            label={'To Idx'}
+                            label={'To Index'}
                             type="number"
                             value={configuration.programTemplate.toIdx}
                             validate={hasValue}
@@ -404,6 +413,7 @@ const CloningNewProgram = ({ metadata }) => {
                         name="password"
                         label={'Password'}
                         value={configuration.userTemplate.password}
+                        type="password"
                         validate={hasValue}
                         className={classes.textField}
                         onChange={({value}) => {
@@ -684,60 +694,65 @@ const CloningNewProgram = ({ metadata }) => {
                         primary
                         type="submit"
                         onClick={async () => {
-                            setProcessing(true);
-                            const baseMetadata = await engine.query({
-                                baseProgramMetadata: {
-                                    resource: `programs/${configuration.programTemplate.id}/metadata`
-                                },
-                                baseUser: {
-                                    resource: 'users',
-                                    id: configuration.userTemplate.id,
-                                    params: {
-                                        fields: [
-                                            ":owner",
-                                            "!created",
-                                            "!lastUpdated",
-                                            "!userRoles",
-                                            "userCredentials[:owner,!created,!lastUpdated,!lastUpdatedBy,!user,!lastLogin,!passwordLastUpdated]"
-                                        ]
-                                    }
-                                }
-                            });
-
-                            // await doWork(configuration,baseMetadata,engine);
-                            let importingData = {
-                                users: []
-                            };
-                            for (let id = parseInt(configuration.programTemplate.fromIdx); id <= parseInt(configuration.programTemplate.toIdx); id++) {
-                                console.log(`Starting cloning process for user ${id} in instance`);
-                        
-                                const password = configuration.userTemplate.password;
-                                const userRoles = configuration.userTemplate.roles;
-                        
-                                const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
-                                const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
-                                
-                                importingData.users = [
-                                    ...importingData.users,
-                                    ...[user]
-                                ];
-                                for ( const key in programMetadata ) {
-                                    if ( importingData[key] ) {
-                                        importingData[key] = [
-                                            ...importingData[key],
-                                            ...programMetadata[key]
-                                        ]
-                                    }
-                                    else {
-                                        importingData[key] = programMetadata[key]
-                                    }
-                                }
+                            if ( !configuration.programTemplate.id || !configuration.userTemplate.id || !configuration.programTemplate.prefix || !configuration.userTemplate.password || parseInt(configuration.programTemplate.fromIdx) > parseInt(configuration.programTemplate.toIdx) ) {
+                                show({ message: 'Please fill all required fields.' });
                             }
+                            else {
+                                setProcessing(true);
+                                const baseMetadata = await engine.query({
+                                    baseProgramMetadata: {
+                                        resource: `programs/${configuration.programTemplate.id}/metadata`
+                                    },
+                                    baseUser: {
+                                        resource: 'users',
+                                        id: configuration.userTemplate.id,
+                                        params: {
+                                            fields: [
+                                                ":owner",
+                                                "!created",
+                                                "!lastUpdated",
+                                                "!userRoles",
+                                                "userCredentials[:owner,!created,!lastUpdated,!lastUpdatedBy,!user,!lastLogin,!passwordLastUpdated]"
+                                            ]
+                                        }
+                                    }
+                                });
 
-                            await mutate({ data: importingData });
+                                // await doWork(configuration,baseMetadata,engine);
+                                let importingData = {
+                                    users: []
+                                };
+                                for (let id = parseInt(configuration.programTemplate.fromIdx); id <= parseInt(configuration.programTemplate.toIdx); id++) {
+                                    console.log(`Starting cloning process for user ${id} in instance`);
+                            
+                                    const password = configuration.userTemplate.password;
+                                    const userRoles = configuration.userTemplate.roles;
+                            
+                                    const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
+                                    const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
+                                    
+                                    importingData.users = [
+                                        ...importingData.users,
+                                        ...[user]
+                                    ];
+                                    for ( const key in programMetadata ) {
+                                        if ( importingData[key] ) {
+                                            importingData[key] = [
+                                                ...importingData[key],
+                                                ...programMetadata[key]
+                                            ]
+                                        }
+                                        else {
+                                            importingData[key] = programMetadata[key]
+                                        }
+                                    }
+                                }
 
-                            handleReset();
-                            setProcessing(false);
+                                await mutate({ data: importingData });
+
+                                handleReset();
+                                setProcessing(false);
+                            }
                         }}
                     >
                         Clone
