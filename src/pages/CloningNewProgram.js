@@ -29,7 +29,7 @@ import {
 import SharingDialog from '../components/sharingdialog/SharingDialog.js';
 import { useDataMutation, useDataEngine, useAlert } from '@dhis2/app-runtime';
 import { cloneProgramMetadata } from "../utils/cloneMetadataProgram.js";
-import { cloneUser } from "../utils";
+import { cloneUser, checkValidPassword } from "../utils";
 import classes from './CloningNewProgram.module.css';
 
 const mutation = {
@@ -121,7 +121,7 @@ const CloningNewProgram = ({ metadata }) => {
                 ],
                 userGroupAccesses: [],
             },
-            dataElements: {
+            dataElements_trk: {
                 publicAccess: '--------',
                 userAccesses: [
                     {
@@ -151,9 +151,14 @@ const CloningNewProgram = ({ metadata }) => {
         title: null
     });
     const [processing, setProcessing] = useState(false);
+    const [isValidPassword, setIsValidPassword] = useState(true);
 
-    const [mutate, { error, data }] = useDataMutation(mutation);
-    const engine = useDataEngine();
+    const [mutate, { error, data, engine }] = useDataMutation(mutation, {
+        onError: error => {
+            setProcessing(false);
+        }
+    });
+    // const engine = useDataEngine();
 
     const { show } = useAlert(
         ({ message }) => message,
@@ -255,7 +260,7 @@ const CloningNewProgram = ({ metadata }) => {
                     ],
                     userGroupAccesses: [],
                 },
-                dataElements: {
+                dataElements_trk: {
                     publicAccess: '--------',
                     userAccesses: [
                         {
@@ -425,6 +430,12 @@ const CloningNewProgram = ({ metadata }) => {
                                 }
                             })
                         }}
+                        onBlur={() => {
+                            setIsValidPassword(checkValidPassword(configuration.userTemplate.password));
+                        }}
+                        helpText="Password should be between 8 and 72 characters long, with at least one lowercase character, one uppercase character, one number, and one special character."
+                        error={!isValidPassword}
+                        validationText={!isValidPassword && "Invalid password"}
                     />
                     <Transfer
                         name="userRoles"
@@ -662,7 +673,7 @@ const CloningNewProgram = ({ metadata }) => {
                                     onClick={() => {
                                         setSharingDialog({
                                             open: true,
-                                            metadata: 'dataElements',
+                                            metadata: 'dataElements_trk',
                                             title: "Data Elements"
                                         })
                                     }}
@@ -696,6 +707,9 @@ const CloningNewProgram = ({ metadata }) => {
                         onClick={async () => {
                             if ( !configuration.programTemplate.id || !configuration.userTemplate.id || !configuration.programTemplate.prefix || !configuration.userTemplate.password || parseInt(configuration.programTemplate.fromIdx) > parseInt(configuration.programTemplate.toIdx) ) {
                                 show({ message: 'Please fill all required fields.' });
+                            }
+                            else if ( !isValidPassword) {
+                                show({ message: 'Password is invalid.' });
                             }
                             else {
                                 setProcessing(true);
@@ -769,7 +783,9 @@ const CloningNewProgram = ({ metadata }) => {
                     error
                     title={'Importing error!'}
                 >
-                    {error}
+                {
+                    error.message
+                }
                 </NoticeBox></>}
                 {data && <><br/><NoticeBox
                     valid

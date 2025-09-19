@@ -29,7 +29,7 @@ import {
 import SharingDialog from '../components/sharingdialog/SharingDialog.js';
 import { useDataMutation, useDataEngine, useAlert } from '@dhis2/app-runtime';
 import { cloneDataSetMetadata } from "../utils/cloneMetadataDataSet.js";
-import { cloneUser } from "../utils";
+import { cloneUser, checkValidPassword } from "../utils";
 import classes from './CloningNewProgram.module.css';
 
 const mutation = {
@@ -68,7 +68,7 @@ const CloningNewDataSet = ({ metadata }) => {
                 ],
                 userGroupAccesses: [],
             },
-            dataElements: {
+            dataElements_agg: {
                 publicAccess: '--------',
                 userAccesses: [
                     {
@@ -87,9 +87,14 @@ const CloningNewDataSet = ({ metadata }) => {
         title: null
     });
     const [processing, setProcessing] = useState(false);
+    const [isValidPassword, setIsValidPassword] = useState(true);
 
-    const [mutate, { error, data }] = useDataMutation(mutation);
-    const engine = useDataEngine();
+    const [mutate, { error, data, engine }] = useDataMutation(mutation, {
+        onError: error => {
+            setProcessing(false);
+        }
+    });
+    // const engine = useDataEngine();
 
     const { show } = useAlert(
         ({ message }) => message,
@@ -138,7 +143,7 @@ const CloningNewDataSet = ({ metadata }) => {
                     ],
                     userGroupAccesses: [],
                 },
-                dataElements: {
+                dataElements_agg: {
                     publicAccess: '--------',
                     userAccesses: [
                         {
@@ -297,6 +302,12 @@ const CloningNewDataSet = ({ metadata }) => {
                                 }
                             })
                         }}
+                        onBlur={() => {
+                            setIsValidPassword(checkValidPassword(configuration.userTemplate.password));
+                        }}
+                        helpText="Password should be between 8 and 72 characters long, with at least one lowercase character, one uppercase character, one number, and one special character."
+                        error={!isValidPassword}
+                        validationText={!isValidPassword && "Invalid password"}
                     />
                     <Transfer
                         name="userRoles"
@@ -375,7 +386,7 @@ const CloningNewDataSet = ({ metadata }) => {
                                         onClick={() => {
                                             setSharingDialog({
                                                 open: true,
-                                                metadata: 'dataElements',
+                                                metadata: 'dataElements_agg',
                                                 title: "Data elements"
                                             })
                                         }}
@@ -390,8 +401,11 @@ const CloningNewDataSet = ({ metadata }) => {
                         primary
                         type="submit"
                         onClick={async () => {
-                            if ( configuration.dataSetTemplate.id === null || configuration.userTemplate.id === null || configuration.dataSetTemplate.prefix === null || Number(configuration.dataSetTemplate.fromIdx) < Number(configuration.dataSetTemplate.toIdx) || configuration.userTemplate.password === null ) {
+                            if ( configuration.dataSetTemplate.id === null || configuration.userTemplate.id === null || configuration.dataSetTemplate.prefix === null || Number(configuration.dataSetTemplate.fromIdx) > Number(configuration.dataSetTemplate.toIdx) || configuration.userTemplate.password === null ) {
                                 show({ message: `Please fill all required fields.` });
+                            }
+                            else if ( !isValidPassword) {
+                                show({ message: 'Password is invalid.' });
                             }
                             else {
                                 setProcessing(true);
@@ -464,13 +478,13 @@ const CloningNewDataSet = ({ metadata }) => {
                     error
                     title={'Importing error!'}
                 >
-                    {error}
+                    {error.message}
                 </NoticeBox></>}
                 {data && <><br/><NoticeBox
                     valid
                     title={'Success!'}
                 >
-                        Cloning success
+                    Cloning success
                 </NoticeBox></>}
             </div>
             {sharingDialog.open && <SharingDialog

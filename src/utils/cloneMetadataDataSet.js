@@ -55,10 +55,6 @@ export const cloneDataSetMetadata = async (id,configuration,baseDataSetMetadata,
     delete dataSetMetadata.legendSets;
     delete dataSetMetadata.legends;
 
-    if ( !configuration.dataSetDependencies.dataElements ) {
-        delete dataSetMetadata.dataElements;
-    }
-
     await assignDataSetMetadataSharing(configuration,dataSetMetadata,userId);
 
     return dataSetMetadata;
@@ -176,9 +172,9 @@ const assignDataSetMetadataSharing = async (configuration, dataSetMetadata, user
         }
     });
     dataSetMetadata.dataElements.forEach( dataElement => {
-        for ( const sharing in configuration.sharingSettings.dataElements ) {
+        for ( const sharing in configuration.sharingSettings.dataElements_agg ) {
             if ( sharing === "userAccesses" ) {
-                dataElement["userAccesses"] = configuration.sharingSettings.dataElements.userAccesses.map( userAccess => {
+                dataElement["userAccesses"] = configuration.sharingSettings.dataElements_agg.userAccesses.map( userAccess => {
                     if ( userAccess.id === "" ) {
                         return {
                             ...userAccess,
@@ -191,7 +187,7 @@ const assignDataSetMetadataSharing = async (configuration, dataSetMetadata, user
                 })
             }
             else {
-                dataElement[sharing] = configuration.sharingSettings.dataElements[sharing];
+                dataElement[sharing] = configuration.sharingSettings.dataElements_agg[sharing];
             }
         }
     });

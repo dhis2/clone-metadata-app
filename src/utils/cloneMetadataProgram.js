@@ -174,6 +174,7 @@ const cloneProgramStageSections = async (id, program, dataElementIdMapping, engi
             const newSectionId = newIds[idx];
             programStageSectionIdMapping[section.id] = newSectionId;
             section.id = newSectionId;
+            section.name = prefix(id, section.name);
             section.dataElements.forEach(dataElement => dataElement.id = dataElementIdMapping[dataElement.id]);
             // delete section.programStage;
         });
@@ -192,6 +193,8 @@ const cloneProgramStages = async (id, program, dataElementIdMapping, stageSectio
         const newStageId = newStageIds[idx];
         programStageIdMapping[stage.id] = newStageId;
         stage.id = newStageId;
+        stage.name = prefix(id, stage.name);
+        delete stage.code;
         stage.programStageDataElements.forEach((stageDataElement, idx) => {
             delete stageDataElement.id;
             delete stageDataElement.programStage;
@@ -240,7 +243,9 @@ const cloneTrackedEntityTypes = async (id, program, trackedEntityAttributeIdMapp
         trackedEntityType.shortName = prefix(id, trackedEntityType.shortName);
         trackedEntityType.shortName = trackedEntityType.shortName.length > 50 ? prefix(id, newTrackedEntityTypeId) : trackedEntityType.shortName;
         trackedEntityType.trackedEntityTypeAttributes.forEach(attribute => {
-            attribute.id = trackedEntityAttributeIdMapping[attribute.id]
+            delete attribute.id;
+            delete attribute.trackedEntityType;
+            attribute.trackedEntityAttribute.id = trackedEntityAttributeIdMapping[attribute.trackedEntityAttribute.id]
         })
     });
 
@@ -257,6 +262,7 @@ const cloneProgramSections = async (id, program, trackedEntityAttributeIdMapping
             const newSectionId = newIds[idx];
             programSectionIdMapping[section.id] = newSectionId;
             section.id = newSectionId;
+            section.name = prefix(id, section.name);
             section.trackedEntityAttributes.forEach(tea => tea.id = trackedEntityAttributeIdMapping[tea.id]);
             // delete section.program;
         });
@@ -563,9 +569,9 @@ const assignProgramMetadataSharing = async (configuration, programMetadata, user
     }
     if ( configuration.programDependencies.dataElements ) {
         programMetadata.dataElements.forEach( dataElement => {
-            for ( const sharing in configuration.sharingSettings.dataElements ) {
+            for ( const sharing in configuration.sharingSettings.dataElements_trk ) {
                 if ( sharing === "userAccesses" ) {
-                    dataElement["userAccesses"] = configuration.sharingSettings.dataElements.userAccesses.map( userAccess => {
+                    dataElement["userAccesses"] = configuration.sharingSettings.dataElements_trk.userAccesses.map( userAccess => {
                         if ( userAccess.id === "" ) {
                             return {
                                 ...userAccess,
@@ -578,7 +584,7 @@ const assignProgramMetadataSharing = async (configuration, programMetadata, user
                     })
                 }
                 else {
-                    dataElement[sharing] = configuration.sharingSettings.dataElements[sharing];
+                    dataElement[sharing] = configuration.sharingSettings.dataElements_trk[sharing];
                 }
             }
         });

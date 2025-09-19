@@ -141,3 +141,8 @@ export const cloneUser = async (id,baseUser,password,userRoles,engine) => {
 
     return user;
 }
+
+export const checkValidPassword = (password) => {
+    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};':"\\|,.<>/?`~]).{8,72}$/;
+    return re.test(password);
+}

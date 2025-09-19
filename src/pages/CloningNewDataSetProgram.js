@@ -30,7 +30,7 @@ import SharingDialog from '../components/sharingdialog/SharingDialog.js';
 import { useDataMutation, useDataEngine, useAlert } from '@dhis2/app-runtime';
 import { cloneDataSetMetadata } from "../utils/cloneMetadataDataSet.js";
 import { cloneProgramMetadata } from "../utils/cloneMetadataProgram.js";
-import { cloneUser } from "../utils";
+import { cloneUser, checkValidPassword } from "../utils";
 import classes from './CloningNewDataSetProgram.module.css';
 
 const mutation = {
@@ -61,7 +61,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
         },
         dataSetDependencies: {
             dataSets: true,
-            dataElements_agg: true,
+            dataElements: true,
         },
         programDependencies: {
             programs: true,
@@ -73,7 +73,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
             programRules: true,
             trackedEntityTypes: false,
             trackedEntityAttributes: false,
-            dataElements_trk: false,
+            dataElements: false,
             optionSets: false
         },
         sharingSettings: {
@@ -186,8 +186,9 @@ const CloningNewDataSetProgram = ({ metadata }) => {
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [isValidPassword, setIsValidPassword] = useState(true);
 
-    const [mutate] = useDataMutation(mutation, {
+    const [mutate, { engine }] = useDataMutation(mutation, {
         onComplete: res => { 
             setSuccess(true); 
             console.log("Response", res);
@@ -197,11 +198,10 @@ const CloningNewDataSetProgram = ({ metadata }) => {
         onError: err => { 
             setError(true);
             console.error("Error", err); 
-            handleReset();
             setProcessing(false);
         }
     });
-    const engine = useDataEngine();
+    // const engine = useDataEngine();
 
     const { show } = useAlert(
         ({ message }) => message,
@@ -242,7 +242,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
             },
             dataSetDependencies: {
                 dataSets: true,
-                dataElements_agg: true
+                dataElements: true
             },
             programDependencies: {
                 programs: true,
@@ -254,7 +254,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                 programRules: true,
                 trackedEntityTypes: false,
                 trackedEntityAttributes: false,
-                dataElements_trk: false,
+                dataElements: false,
                 optionSets: false
             },
             sharingSettings: {
@@ -467,6 +467,10 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                     programTemplate: {
                                         ...configuration.programTemplate,
                                         fromIdx: value
+                                    },
+                                    dataSetTemplate: {
+                                        ...configuration.dataSetTemplate,
+                                        fromIdx: value
                                     }
                                 })
                             }}
@@ -484,6 +488,10 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                     ...configuration,
                                     programTemplate: {
                                         ...configuration.programTemplate,
+                                        toIdx: value
+                                    },
+                                    dataSetTemplate: {
+                                        ...configuration.dataSetTemplate,
                                         toIdx: value
                                     }
                                 })
@@ -539,6 +547,12 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                 }
                             })
                         }}
+                        onBlur={() => {
+                            setIsValidPassword(checkValidPassword(configuration.userTemplate.password));
+                        }}
+                        helpText="Password should be between 8 and 72 characters long, with at least one lowercase character, one uppercase character, one number, and one special character."
+                        error={!isValidPassword}
+                        validationText={!isValidPassword && "Invalid password"}
                     />
                     <Transfer
                         name="userRoles"
@@ -641,7 +655,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                         ...configuration.programDependencies,
                                         trackedEntityAttributes: !configuration.programDependencies.trackedEntityAttributes,
                                         trackedEntityTypes: !configuration.programDependencies.trackedEntityAttributes,
-                                        optionSets: !configuration.programDependencies.dataElements_trk && configuration.programDependencies.trackedEntityAttributes ? false : configuration.programDependencies.optionSets
+                                        optionSets: !configuration.programDependencies.dataElements && configuration.programDependencies.trackedEntityAttributes ? false : configuration.programDependencies.optionSets
                                     }
                                 })
                             }}
@@ -649,22 +663,22 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                         <CheckboxField
                             name="dataelements"
                             label={'Data Elements (for Data Set)'}
-                            checked={configuration.dataSetDependencies.dataElements_agg}
+                            checked={configuration.dataSetDependencies.dataElements}
                             disabled
                             className={classes.field}
                         />
                         <CheckboxField
                             name="dataElements"
                             label={'Data Elements (for Program)'}
-                            checked={configuration.programDependencies.dataElements_trk}
+                            checked={configuration.programDependencies.dataElements}
                             className={classes.field}
                             onChange={() => {
                                 setConfiguration({
                                     ...configuration,
                                     programDependencies: {
                                         ...configuration.programDependencies,
-                                        dataElements_trk: !configuration.programDependencies.dataElements_trk,
-                                        optionSets: configuration.programDependencies.dataElements_trk && !configuration.programDependencies.trackedEntityAttributes ? false : configuration.programDependencies.optionSets
+                                        dataElements: !configuration.programDependencies.dataElements,
+                                        optionSets: configuration.programDependencies.dataElements && !configuration.programDependencies.trackedEntityAttributes ? false : configuration.programDependencies.optionSets
                                     }
                                 })
                             }}
@@ -683,7 +697,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                     }
                                 })
                             }}
-                            disabled={!configuration.programDependencies.dataElements_trk && !configuration.programDependencies.trackedEntityAttributes}
+                            disabled={!configuration.programDependencies.dataElements && !configuration.programDependencies.trackedEntityAttributes}
                         />
                     </div>
                 </FormSection>
@@ -814,7 +828,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                     ></Button>
                                 </DataTableCell>
                             </DataTableRow>
-                            {configuration.programDependencies.dataElements_trk && <DataTableRow>
+                            {configuration.programDependencies.dataElements && <DataTableRow>
                                 <DataTableCell>Data Elements (for Program)</DataTableCell>
                                 <DataTableCell align='right'>
                                 <Button
@@ -856,8 +870,11 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                         primary
                         type="submit"
                         onClick={async () => {
-                            if (configuration.dataSetTemplate.id === null || configuration.programTemplate.id === null || configuration.userTemplate.id === null || configuration.dataSetTemplate.prefix === null || Number(configuration.dataSetTemplate.fromIdx) < Number(configuration.dataSetTemplate.toIdx) || configuration.userTemplate.password === null) {
+                            if (configuration.dataSetTemplate.id === null || configuration.programTemplate.id === null || configuration.userTemplate.id === null || configuration.dataSetTemplate.prefix === null || Number(configuration.dataSetTemplate.fromIdx) > Number(configuration.dataSetTemplate.toIdx) || configuration.userTemplate.password === null) {
                                 show({ message: `Please fill all required fields.` });
+                            }
+                            else if ( !isValidPassword) {
+                                show({ message: 'Password is invalid.' });
                             }
                             else {
                                 setProcessing(true);
