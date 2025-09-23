@@ -114,7 +114,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                 publicAccess: '--------',
                 userAccesses: [
                     {
-                        access: 'rwrw----',
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -136,7 +136,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                 publicAccess: '--------',
                 userAccesses: [
                     {
-                        access: 'rwrw----',
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -147,7 +147,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                 publicAccess: '--------',
                 userAccesses: [
                     {
-                        access: 'rwrw----',
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -158,7 +158,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                 publicAccess: '--------',
                 userAccesses: [
                     {
-                        access: 'rwrw----',
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -169,7 +169,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                 publicAccess: '--------',
                 userAccesses: [
                     {
-                        access: 'rwrw----',
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -295,7 +295,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                     publicAccess: '--------',
                     userAccesses: [
                         {
-                            access: 'rwrw----',
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -317,7 +317,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                     publicAccess: '--------',
                     userAccesses: [
                         {
-                            access: 'rwrw----',
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -328,7 +328,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                     publicAccess: '--------',
                     userAccesses: [
                         {
-                            access: 'rwrw----',
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -339,7 +339,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                     publicAccess: '--------',
                     userAccesses: [
                         {
-                            access: 'rwrw----',
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -350,7 +350,7 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                     publicAccess: '--------',
                     userAccesses: [
                         {
-                            access: 'rwrw----',
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }

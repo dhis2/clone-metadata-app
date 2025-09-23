@@ -72,7 +72,7 @@ const CloningNewDataSet = ({ metadata }) => {
                 publicAccess: '--------',
                 userAccesses: [
                     {
-                        access: 'rwrw----',
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -147,7 +147,7 @@ const CloningNewDataSet = ({ metadata }) => {
                     publicAccess: '--------',
                     userAccesses: [
                         {
-                            access: 'rwrw----',
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }

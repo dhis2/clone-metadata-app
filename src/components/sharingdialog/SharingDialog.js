@@ -91,11 +91,15 @@ const SharingDialog = ({
 
     return (
         <Modal onClose={onClose} name={title}>
-            <AccessAdd onAdd={onAdd} />
+            <AccessAdd 
+                metadata={metadata}
+                onAdd={onAdd} 
+            />
             <AccessList
                 users={sharingSettings[metadata].userAccesses}
                 groups={sharingSettings[metadata].userGroupAccesses}
                 publicAccess={sharingSettings[metadata].publicAccess}
+                metadata={metadata}
                 onChange={onChange}
                 onRemove={onRemove}
             />

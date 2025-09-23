@@ -6,10 +6,10 @@ import PropTypes from 'prop-types'
 import React, { useState, useContext } from 'react'
 import { SharingAutocomplete } from './aucocomplete/SharingAutocomplete.js';
 
-export const AccessAdd = ({ onAdd }) =>  {
+export const AccessAdd = ({ metadata, onAdd }) =>  {
     const [entity, setEntity] = useState(null)
     const [metadataAccess, setMetadataAccess] = useState('')
-    const [dataAccess, setDataAccess] = useState('')
+    const [dataAccess, setDataAccess] = useState('ACCESS_NONE_DATA')
     const { isDisconnected: offline } = useDhis2ConnectionStatus()
 
     const onSubmit = (e) => {
@@ -25,7 +25,7 @@ export const AccessAdd = ({ onAdd }) =>  {
 
         setEntity(null)
         setMetadataAccess('')
-        setDataAccess('')
+        setDataAccess('ACCESS_NONE_DATA')
     }
 
     const metadataAccessOptions = [
@@ -96,7 +96,14 @@ export const AccessAdd = ({ onAdd }) =>  {
                         inputWidth="206px"
                         label={''}
                         placeholder={'Select a level'}
-                        disabled={offline}
+                        disabled={
+                            offline
+                            ||metadata === "dataElements_agg"
+                            || metadata === "dataElements_trk"
+                            || metadata === "programIndicators"
+                            || metadata === "trackedEntityAttributes"
+                            || metadata === "optionSets"
+                        }
                         selected={dataAccess}
                         helpText={
                             offline ? 'Not available offline' : ''

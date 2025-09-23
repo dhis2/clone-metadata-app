@@ -97,6 +97,7 @@ const ListItem = ({
     name,
     target,
     access,
+    metadata,
     onChange,
     onRemove,
     isRemovableTarget
@@ -192,6 +193,13 @@ const ListItem = ({
                             metadata: access.metadata,
                             data: selected
                         })}
+                        disabled={
+                            metadata === "dataElements_agg"
+                            || metadata === "dataElements_trk"
+                            || metadata === "programIndicators"
+                            || metadata === "trackedEntityAttributes"
+                            || metadata === "optionSets"
+                        }
                     >
                         {dataAccessOptions.map(({value,label}) => (
                             <SingleSelectOption
@@ -243,6 +251,7 @@ export const AccessList = ({
     onChange,
     onRemove,
     publicAccess,
+    metadata,
     users,
     groups
 }) => {
@@ -257,6 +266,7 @@ export const AccessList = ({
                 name={'All users'}
                 target={'SHARE_TARGET_PUBLIC'}
                 access={convertAccessToConstant(publicAccess)}
+                metadata={metadata}
                 onChange={(newAccess) =>
                     onChange({ type: 'public', access: newAccess })
                 }
@@ -268,6 +278,7 @@ export const AccessList = ({
                         name={name}
                         target={"SHARE_TARGET_GROUP"}
                         access={convertAccessToConstant(access)}
+                        metadata={metadata}
                         onChange={(newAccess) =>
                             onChange({ type: 'group', id, access: newAccess })
                         }
@@ -283,6 +294,7 @@ export const AccessList = ({
                         name={name}
                         target={"SHARE_TARGET_USER"}
                         access={convertAccessToConstant(access)}
+                        metadata={metadata}
                         onChange={(newAccess) =>
                             onChange({ type: 'user', id, access: newAccess })
                         }
@@ -293,6 +305,7 @@ export const AccessList = ({
                         name={name}
                         target={'SHARE_TARGET_USER'}
                         access={convertAccessToConstant(access)}
+                        metadata={metadata}
                         onChange={(newAccess) =>
                             onChange({ type: 'user', id, access: newAccess })
                         }
