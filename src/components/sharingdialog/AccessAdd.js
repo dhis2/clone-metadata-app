@@ -98,7 +98,7 @@ export const AccessAdd = ({ metadata, onAdd }) =>  {
                         placeholder={'Select a level'}
                         disabled={
                             offline
-                            ||metadata === "dataElements_agg"
+                            || metadata === "dataElements_agg"
                             || metadata === "dataElements_trk"
                             || metadata === "programIndicators"
                             || metadata === "trackedEntityAttributes"

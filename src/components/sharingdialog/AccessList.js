@@ -100,7 +100,8 @@ const ListItem = ({
     metadata,
     onChange,
     onRemove,
-    isRemovableTarget
+    isRemovableTarget,
+    disabled
 }) => {
     // const valueToLabel = {
     //     ACCESS_NONE: i18n.t('No access'),
@@ -167,6 +168,7 @@ const ListItem = ({
                             metadata: selected,
                             data: access.data
                         })}
+                        disabled={disabled}
                     >
                         {metadataAccessOptions.map(({value,label}) => (
                             <SingleSelectOption
@@ -194,7 +196,8 @@ const ListItem = ({
                             data: selected
                         })}
                         disabled={
-                            metadata === "dataElements_agg"
+                            disabled
+                            || metadata === "dataElements_agg"
                             || metadata === "dataElements_trk"
                             || metadata === "programIndicators"
                             || metadata === "trackedEntityAttributes"
@@ -271,6 +274,7 @@ export const AccessList = ({
                     onChange({ type: 'public', access: newAccess })
                 }
                 isRemovableTarget={false}
+                disabled={false}
             />
             {
                 groups.map( ({id,name,access}) => (
@@ -284,12 +288,13 @@ export const AccessList = ({
                         }
                         onRemove={() => onRemove({ type: 'group', id })}
                         isRemovableTarget={true}
+                        disabled={false}
                     />
                 ))
             }
             {
                 users.map( ({id,name,access}, index) => (
-                    index === 0 ?
+                    index === 0 || index === 1 ?
                     <ListItem
                         name={name}
                         target={"SHARE_TARGET_USER"}
@@ -299,6 +304,7 @@ export const AccessList = ({
                             onChange({ type: 'user', id, access: newAccess })
                         }
                         isRemovableTarget={false}
+                        disabled={index === 0}
                     />
                     :
                     <ListItem
@@ -311,6 +317,7 @@ export const AccessList = ({
                         }
                         onRemove={() => onRemove({ type: 'user', id })}
                         isRemovableTarget={true}
+                        disabled={false}
                     />
                 ))
             }

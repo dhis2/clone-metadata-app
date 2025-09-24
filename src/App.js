@@ -41,6 +41,12 @@ const query = {
             fields: ['id', 'displayName'],
             paging: false,
         },
+    },
+    me: {
+        resource: 'me',
+        params: {
+            fields: ['id'],
+        }
     }
 }
 

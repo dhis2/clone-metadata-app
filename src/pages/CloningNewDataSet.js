@@ -62,6 +62,11 @@ const CloningNewDataSet = ({ metadata }) => {
                 userAccesses: [
                     {
                         access: 'rwrw----',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
+                    {
+                        access: 'rwrw----',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -71,6 +76,11 @@ const CloningNewDataSet = ({ metadata }) => {
             dataElements_agg: {
                 publicAccess: '--------',
                 userAccesses: [
+                    {
+                        access: 'rw------',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
                     {
                         access: 'rw------',
                         name: 'Cloning User',
@@ -137,6 +147,11 @@ const CloningNewDataSet = ({ metadata }) => {
                     userAccesses: [
                         {
                             access: 'rwrw----',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
+                        {
+                            access: 'rwrw----',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -146,6 +161,11 @@ const CloningNewDataSet = ({ metadata }) => {
                 dataElements_agg: {
                     publicAccess: '--------',
                     userAccesses: [
+                        {
+                            access: 'rw------',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
                         {
                             access: 'rw------',
                             name: 'Cloning User',

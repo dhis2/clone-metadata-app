@@ -71,6 +71,11 @@ const CloningNewProgram = ({ metadata }) => {
                 userAccesses: [
                     {
                         access: 'rwrw----',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
+                    {
+                        access: 'rwrw----',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -80,6 +85,11 @@ const CloningNewProgram = ({ metadata }) => {
             programStages: {
                 publicAccess: '--------',
                 userAccesses: [
+                    {
+                        access: 'rwrw----',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
                     {
                         access: 'rwrw----',
                         name: 'Cloning User',
@@ -93,6 +103,11 @@ const CloningNewProgram = ({ metadata }) => {
                 userAccesses: [
                     {
                         access: 'rw------',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
+                    {
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -102,6 +117,11 @@ const CloningNewProgram = ({ metadata }) => {
             trackedEntityTypes: {
                 publicAccess: '--------',
                 userAccesses: [
+                    {
+                        access: 'rwrw----',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
                     {
                         access: 'rwrw----',
                         name: 'Cloning User',
@@ -115,6 +135,11 @@ const CloningNewProgram = ({ metadata }) => {
                 userAccesses: [
                     {
                         access: 'rw------',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
+                    {
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -126,6 +151,11 @@ const CloningNewProgram = ({ metadata }) => {
                 userAccesses: [
                     {
                         access: 'rw------',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
+                    {
+                        access: 'rw------',
                         name: 'Cloning User',
                         id: ''
                     }
@@ -135,6 +165,11 @@ const CloningNewProgram = ({ metadata }) => {
             optionSets: {
                 publicAccess: '--------',
                 userAccesses: [
+                    {
+                        access: 'rw------',
+                        name: 'My User',
+                        id: metadata.me.id
+                    },
                     {
                         access: 'rw------',
                         name: 'Cloning User',
@@ -210,6 +245,11 @@ const CloningNewProgram = ({ metadata }) => {
                     userAccesses: [
                         {
                             access: 'rwrw----',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
+                        {
+                            access: 'rwrw----',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -219,6 +259,11 @@ const CloningNewProgram = ({ metadata }) => {
                 programStages: {
                     publicAccess: '--------',
                     userAccesses: [
+                        {
+                            access: 'rwrw----',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
                         {
                             access: 'rwrw----',
                             name: 'Cloning User',
@@ -232,6 +277,11 @@ const CloningNewProgram = ({ metadata }) => {
                     userAccesses: [
                         {
                             access: 'rw------',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
+                        {
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -241,6 +291,11 @@ const CloningNewProgram = ({ metadata }) => {
                 trackedEntityTypes: {
                     publicAccess: '--------',
                     userAccesses: [
+                        {
+                            access: 'rwrw----',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
                         {
                             access: 'rwrw----',
                             name: 'Cloning User',
@@ -254,6 +309,11 @@ const CloningNewProgram = ({ metadata }) => {
                     userAccesses: [
                         {
                             access: 'rw------',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
+                        {
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -265,6 +325,11 @@ const CloningNewProgram = ({ metadata }) => {
                     userAccesses: [
                         {
                             access: 'rw------',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
+                        {
+                            access: 'rw------',
                             name: 'Cloning User',
                             id: ''
                         }
@@ -274,6 +339,11 @@ const CloningNewProgram = ({ metadata }) => {
                 optionSets: {
                     publicAccess: '--------',
                     userAccesses: [
+                        {
+                            access: 'rw------',
+                            name: 'My User',
+                            id: metadata.me.id
+                        },
                         {
                             access: 'rw------',
                             name: 'Cloning User',
