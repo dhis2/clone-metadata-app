@@ -462,153 +462,223 @@ const cloneProgramRules = async (id, program, programIdMapping, programRuleActio
 
 const assignProgramMetadataSharing = async (configuration, programMetadata, userId) => {
     programMetadata.programs.forEach( program => {
-        for ( const sharing in configuration.sharingSettings.programs ) {
-            if ( sharing === "userAccesses" ) {
-                program["userAccesses"] = configuration.sharingSettings.programs.userAccesses.map( userAccess => {
-                    if ( userAccess.id === "" ) {
-                        return {
-                            ...userAccess,
-                            id: userId
+        program["sharing"] = {
+            ...program["sharing"],
+            public: configuration.sharingSettings.programs.publicAccess,
+            users: {
+                ...program["sharing"].users,
+                ...configuration.sharingSettings.programs.userAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id === "" ? userId : currentValue.id]: {
+                            id: currentValue.id === "" ? userId : currentValue.id,
+                            access: currentValue.access
                         }
                     }
-                    else {
-                        return userAccess
+                }, {})
+            },
+            userGroups: {
+                ...program["sharing"].userGroups,
+                ...configuration.sharingSettings.programs.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id]: {
+                            id: currentValue.id,
+                            access: currentValue.access
+                        }
                     }
-                })
-            }
-            else {
-                program[sharing] = configuration.sharingSettings.programs[sharing];
+                }, {})
             }
         }
     });
     programMetadata.programStages.forEach( programStage => {
-        for ( const sharing in configuration.sharingSettings.programStages ) {
-            if ( sharing === "userAccesses" ) {
-                programStage["userAccesses"] = configuration.sharingSettings.programStages.userAccesses.map( userAccess => {
-                    if ( userAccess.id === "" ) {
-                        return {
-                            ...userAccess,
-                            id: userId
+        programStage["sharing"] = {
+            ...programStage["sharing"],
+            public: configuration.sharingSettings.programStages.publicAccess,
+            users: {
+                ...programStage["sharing"].users,
+                ...configuration.sharingSettings.programStages.userAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id === "" ? userId : currentValue.id]: {
+                            id: currentValue.id === "" ? userId : currentValue.id,
+                            access: currentValue.access
                         }
                     }
-                    else {
-                        return userAccess
+                }, {})
+            },
+            userGroups: {
+                ...programStage["sharing"].userGroups,
+                ...configuration.sharingSettings.programStages.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id]: {
+                            id: currentValue.id,
+                            access: currentValue.access
+                        }
                     }
-                })
-            }
-            else {
-                programStage[sharing] = configuration.sharingSettings.programStages[sharing];
+                }, {})
             }
         }
     });
     if ( programMetadata.programIndicators ) {
         programMetadata.programIndicators.forEach( programIndicator => {
-            for ( const sharing in configuration.sharingSettings.programIndicators ) {
-                if ( sharing === "userAccesses" ) {
-                    programIndicator["userAccesses"] = configuration.sharingSettings.programIndicators.userAccesses.map( userAccess => {
-                        if ( userAccess.id === "" ) {
+            programIndicator["sharing"] = {
+                    ...programIndicator["sharing"],
+                    public: configuration.sharingSettings.programIndicators.publicAccess,
+                    users: {
+                        ...programIndicator["sharing"].users,
+                        ...configuration.sharingSettings.programIndicators.userAccesses.reduce( (accumulator, currentValue) => {
                             return {
-                                ...userAccess,
-                                id: userId
+                                ...accumulator,
+                                [currentValue.id === "" ? userId : currentValue.id]: {
+                                    id: currentValue.id === "" ? userId : currentValue.id,
+                                    access: currentValue.access
+                                }
                             }
-                        }
-                        else {
-                            return userAccess
-                        }
-                    })
-                }
-                else {
-                    programIndicator[sharing] = configuration.sharingSettings.programIndicators[sharing];
-                }
-            }
+                        }, {})
+                    },
+                    userGroups: {
+                        ...programIndicator["sharing"].userGroups,
+                        ...configuration.sharingSettings.programIndicators.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                            return {
+                                ...accumulator,
+                                [currentValue.id]: {
+                                    id: currentValue.id,
+                                    access: currentValue.access
+                                }
+                            }
+                        }, {})
+                    }
+                };
         });
     }
     if ( configuration.programDependencies.trackedEntityTypes ) {
         programMetadata.trackedEntityTypes.forEach( trackedEntityType => {
-            for ( const sharing in configuration.sharingSettings.trackedEntityTypes ) {
-                if ( sharing === "userAccesses" ) {
-                    trackedEntityType["userAccesses"] = configuration.sharingSettings.trackedEntityTypes.userAccesses.map( userAccess => {
-                        if ( userAccess.id === "" ) {
-                            return {
-                                ...userAccess,
-                                id: userId
+            trackedEntityType["sharing"] = {
+                ...trackedEntityType["sharing"],
+                public: configuration.sharingSettings.trackedEntityTypes.publicAccess,
+                users: {
+                    ...trackedEntityType["sharing"].users,
+                    ...configuration.sharingSettings.trackedEntityTypes.userAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id === "" ? userId : currentValue.id]: {
+                                id: currentValue.id === "" ? userId : currentValue.id,
+                                access: currentValue.access
                             }
                         }
-                        else {
-                            return userAccess
+                    }, {})
+                },
+                userGroups: {
+                    ...trackedEntityType["sharing"].userGroups,
+                    ...configuration.sharingSettings.trackedEntityTypes.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id]: {
+                                id: currentValue.id,
+                                access: currentValue.access
+                            }
                         }
-                    })
+                    }, {})
                 }
-                else {
-                    trackedEntityType[sharing] = configuration.sharingSettings.trackedEntityTypes[sharing];
-                }
-            }
+            };
         });
     }
     if ( configuration.programDependencies.trackedEntityAttributes ) {
         programMetadata.trackedEntityAttributes.forEach( trackedEntityAttribute => {
-            for ( const sharing in configuration.sharingSettings.trackedEntityAttributes ) {
-                if ( sharing === "userAccesses" ) {
-                    trackedEntityAttribute["userAccesses"] = configuration.sharingSettings.trackedEntityAttributes.userAccesses.map( userAccess => {
-                        if ( userAccess.id === "" ) {
-                            return {
-                                ...userAccess,
-                                id: userId
+            trackedEntityAttribute["sharing"] = {
+                ...trackedEntityAttribute["sharing"],
+                public: configuration.sharingSettings.trackedEntityAttributes.publicAccess,
+                users: {
+                    ...trackedEntityAttribute["sharing"].users,
+                    ...configuration.sharingSettings.trackedEntityAttributes.userAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id === "" ? userId : currentValue.id]: {
+                                id: currentValue.id === "" ? userId : currentValue.id,
+                                access: currentValue.access
                             }
                         }
-                        else {
-                            return userAccess
+                    }, {})
+                },
+                userGroups: {
+                    ...trackedEntityAttribute["sharing"].userGroups,
+                    ...configuration.sharingSettings.trackedEntityAttributes.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id]: {
+                                id: currentValue.id,
+                                access: currentValue.access
+                            }
                         }
-                    })
+                    }, {})
                 }
-                else {
-                    trackedEntityAttribute[sharing] = configuration.sharingSettings.trackedEntityAttributes[sharing];
-                }
-            }
+            };
         });
     }
     if ( configuration.programDependencies.dataElements ) {
         programMetadata.dataElements.forEach( dataElement => {
-            for ( const sharing in configuration.sharingSettings.dataElements_trk ) {
-                if ( sharing === "userAccesses" ) {
-                    dataElement["userAccesses"] = configuration.sharingSettings.dataElements_trk.userAccesses.map( userAccess => {
-                        if ( userAccess.id === "" ) {
-                            return {
-                                ...userAccess,
-                                id: userId
+            dataElement["sharing"] = {
+                ...dataElement["sharing"],
+                public: configuration.sharingSettings.dataElements_trk.publicAccess,
+                users: {
+                    ...dataElement["sharing"].users,
+                    ...configuration.sharingSettings.dataElements_trk.userAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id === "" ? userId : currentValue.id]: {
+                                id: currentValue.id === "" ? userId : currentValue.id,
+                                access: currentValue.access
                             }
                         }
-                        else {
-                            return userAccess
+                    }, {})
+                },
+                userGroups: {
+                    ...dataElement["sharing"].userGroups,
+                    ...configuration.sharingSettings.dataElements_trk.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id]: {
+                                id: currentValue.id,
+                                access: currentValue.access
+                            }
                         }
-                    })
+                    }, {})
                 }
-                else {
-                    dataElement[sharing] = configuration.sharingSettings.dataElements_trk[sharing];
-                }
-            }
+            };
         });
     }
     if ( configuration.programDependencies.optionSets ) {
         programMetadata.optionSets.forEach( optionSet => {
-            for ( const sharing in configuration.sharingSettings.optionSets ) {
-                if ( sharing === "userAccesses" ) {
-                    optionSet["userAccesses"] = configuration.sharingSettings.optionSets.userAccesses.map( userAccess => {
-                        if ( userAccess.id === "" ) {
-                            return {
-                                ...userAccess,
-                                id: userId
+            optionSet["sharing"] = {
+                ...optionSet["sharing"],
+                public: configuration.sharingSettings.optionSets.publicAccess,
+                users: {
+                    ...optionSet["sharing"].users,
+                    ...configuration.sharingSettings.optionSets.userAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id === "" ? userId : currentValue.id]: {
+                                id: currentValue.id === "" ? userId : currentValue.id,
+                                access: currentValue.access
                             }
                         }
-                        else {
-                            return userAccess
+                    }, {})
+                },
+                userGroups: {
+                    ...optionSet["sharing"].userGroups,
+                    ...configuration.sharingSettings.optionSets.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                        return {
+                            ...accumulator,
+                            [currentValue.id]: {
+                                id: currentValue.id,
+                                access: currentValue.access
+                            }
                         }
-                    })
+                    }, {})
                 }
-                else {
-                    optionSet[sharing] = configuration.sharingSettings.optionSets[sharing];
-                }
-            }
+            };
         });
     }
 }

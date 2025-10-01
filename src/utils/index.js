@@ -127,11 +127,19 @@ export const cloneUser = async (id,baseUser,password,userRoles,engine) => {
     const user = copy(baseUser);
     user.id = newIds[0];
     user.firstName = prefix(id, baseUser.firstName);
-    user.userCredentials.id = newIds[1];
-    // user.userCredentials.userInfo.id = newIds[0];
-    user.userCredentials.username = `${baseUser.username}_${id}`;
-    user.userCredentials.password = password;
-    user.userCredentials.userRoles = userRoles.map( id => ({ id: id }));
+    if ( user.userCredentials ) {
+        user.userCredentials.id = newIds[1];
+        // user.userCredentials.userInfo.id = newIds[0];
+        user.userCredentials.username = `${baseUser.username}_${id}`;
+        user.userCredentials.password = password;
+        user.userCredentials.userRoles = userRoles.map( id => ({ id: id }));
+    }
+    else {
+        user.username = `${baseUser.username}_${id}`;
+        user.password = password;
+        user.userRoles = userRoles.map( id => ({ id: id }));
+    }
+    
 
     // await engine.mutate({
     //     resource: "users",

@@ -1,6 +1,6 @@
 const config = {
     type: 'app',
-    name: 'Tracker & Data Set Cloner',
+    name: 'Tracker & Dataset Metadata Cloner',
     entryPoints: {
         app: './src/App.js',
     },

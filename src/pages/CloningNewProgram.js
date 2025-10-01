@@ -812,27 +812,36 @@ const CloningNewProgram = ({ metadata }) => {
                                     const password = configuration.userTemplate.password;
                                     const userRoles = configuration.userTemplate.roles;
                             
-                                    const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
-                                    const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
-                                    
-                                    importingData.users = [
-                                        ...importingData.users,
-                                        ...[user]
-                                    ];
-                                    for ( const key in programMetadata ) {
-                                        if ( importingData[key] ) {
-                                            importingData[key] = [
-                                                ...importingData[key],
-                                                ...programMetadata[key]
-                                            ]
+                                    try {
+                                        const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
+                                        const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
+                                        
+                                        importingData.users = [
+                                            ...importingData.users,
+                                            ...[user]
+                                        ];
+                                        for ( const key in programMetadata ) {
+                                            if ( importingData[key] ) {
+                                                importingData[key] = [
+                                                    ...importingData[key],
+                                                    ...programMetadata[key]
+                                                ]
+                                            }
+                                            else {
+                                                importingData[key] = programMetadata[key]
+                                            }
                                         }
-                                        else {
-                                            importingData[key] = programMetadata[key]
-                                        }
+                                    }
+                                    catch(err) {
+                                        show({ message: 'An error occurred while cloning the program.' });
+                                        console.error(err);
+                                        setProcessing(false);
                                     }
                                 }
 
-                                await mutate({ data: importingData });
+                                if ( importingData.users.length > 0 ) {
+                                    await mutate({ data: importingData });
+                                }
 
                                 handleReset();
                                 setProcessing(false);

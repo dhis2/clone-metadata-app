@@ -152,42 +152,62 @@ const replaceCustomDataEntrynMappingForDE = (htmlCode, dataElementIdMapping) => 
 
 const assignDataSetMetadataSharing = async (configuration, dataSetMetadata, userId) => {
     dataSetMetadata.dataSets.forEach( dataSet => {
-        for ( const sharing in configuration.sharingSettings.dataSets ) {
-            if ( sharing === "userAccesses" ) {
-                dataSet["userAccesses"] = configuration.sharingSettings.dataSets.userAccesses.map( userAccess => {
-                    if ( userAccess.id === "" ) {
-                        return {
-                            ...userAccess,
-                            id: userId
+        dataSet["sharing"] = {
+            ...dataSet["sharing"],
+            public: configuration.sharingSettings.dataSets.publicAccess,
+            users: {
+                ...dataSet["sharing"].users,
+                ...configuration.sharingSettings.dataSets.userAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id === "" ? userId : currentValue.id]: {
+                            id: currentValue.id === "" ? userId : currentValue.id,
+                            access: currentValue.access
                         }
                     }
-                    else {
-                        return userAccess
+                }, {})
+            },
+            userGroups: {
+                ...dataSet["sharing"].userGroups,
+                ...configuration.sharingSettings.dataSets.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id]: {
+                            id: currentValue.id,
+                            access: currentValue.access
+                        }
                     }
-                })
-            }
-            else {
-                dataSet[sharing] = configuration.sharingSettings.dataSets[sharing];
+                }, {})
             }
         }
     });
     dataSetMetadata.dataElements.forEach( dataElement => {
-        for ( const sharing in configuration.sharingSettings.dataElements_agg ) {
-            if ( sharing === "userAccesses" ) {
-                dataElement["userAccesses"] = configuration.sharingSettings.dataElements_agg.userAccesses.map( userAccess => {
-                    if ( userAccess.id === "" ) {
-                        return {
-                            ...userAccess,
-                            id: userId
+        dataElement["sharing"] = {
+            ...dataElement["sharing"],
+            public: configuration.sharingSettings.dataElements_agg.publicAccess,
+            users: {
+                ...dataElement["sharing"].users,
+                ...configuration.sharingSettings.dataElements_agg.userAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id === "" ? userId : currentValue.id]: {
+                            id: currentValue.id === "" ? userId : currentValue.id,
+                            access: currentValue.access
                         }
                     }
-                    else {
-                        return userAccess
+                }, {})
+            },
+            userGroups: {
+                ...dataElement["sharing"].userGroups,
+                ...configuration.sharingSettings.dataElements_agg.userGroupAccesses.reduce( (accumulator, currentValue) => {
+                    return {
+                        ...accumulator,
+                        [currentValue.id]: {
+                            id: currentValue.id,
+                            access: currentValue.access
+                        }
                     }
-                })
-            }
-            else {
-                dataElement[sharing] = configuration.sharingSettings.dataElements_agg[sharing];
+                }, {})
             }
         }
     });

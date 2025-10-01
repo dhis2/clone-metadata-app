@@ -457,27 +457,36 @@ const CloningNewDataSet = ({ metadata }) => {
                                     const password = configuration.userTemplate.password;
                                     const userRoles = configuration.userTemplate.roles;
                             
-                                    const user = await cloneUser(`${configuration.dataSetTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
-                                    const dataSetMetadata = await cloneDataSetMetadata(`${configuration.dataSetTemplate.prefix}_${id}`,configuration,baseMetadata.baseDataSetMetadata,user.id,engine);
-                            
-                                    importingData.users = [
-                                        ...importingData.users,
-                                        ...[user]
-                                    ];
-                                    for ( const key in dataSetMetadata ) {
-                                        if ( importingData[key] ) {
-                                            importingData[key] = [
-                                                ...importingData[key],
-                                                ...dataSetMetadata[key]
-                                            ]
+                                    try {
+                                        const user = await cloneUser(`${configuration.dataSetTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
+                                        const dataSetMetadata = await cloneDataSetMetadata(`${configuration.dataSetTemplate.prefix}_${id}`,configuration,baseMetadata.baseDataSetMetadata,user.id,engine);
+                                
+                                        importingData.users = [
+                                            ...importingData.users,
+                                            ...[user]
+                                        ];
+                                        for ( const key in dataSetMetadata ) {
+                                            if ( importingData[key] ) {
+                                                importingData[key] = [
+                                                    ...importingData[key],
+                                                    ...dataSetMetadata[key]
+                                                ]
+                                            }
+                                            else {
+                                                importingData[key] = dataSetMetadata[key]
+                                            }
                                         }
-                                        else {
-                                            importingData[key] = dataSetMetadata[key]
-                                        }
+                                    }
+                                    catch(err) {
+                                        show({ message: 'An error occurred while cloning the data set.' });
+                                        console.error(err);
+                                        setProcessing(false);
                                     }
                                 }
 
-                                await mutate({ data: importingData });
+                                if ( importingData.users.length > 0 ) {
+                                    await mutate({ data: importingData });
+                                }
 
                                 handleReset();
                                 setProcessing(false);

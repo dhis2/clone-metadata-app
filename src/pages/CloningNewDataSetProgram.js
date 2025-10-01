@@ -1002,39 +1002,48 @@ const CloningNewDataSetProgram = ({ metadata }) => {
                                     const password = configuration.userTemplate.password;
                                     const userRoles = configuration.userTemplate.roles;
                             
-                                    const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
-                                    const dataSetMetadata = await cloneDataSetMetadata(`${configuration.dataSetTemplate.prefix}_${id}`,configuration,baseMetadata.baseDataSetMetadata,user.id,engine);
-                                    const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
-                                
-                                    importingData.users = [
-                                        ...importingData.users,
-                                        ...[user]
-                                    ];
-                                    for ( const key in dataSetMetadata ) {
-                                        if ( importingData[key] ) {
-                                            importingData[key] = [
-                                                ...importingData[key],
-                                                ...dataSetMetadata[key]
-                                            ]
+                                    try {
+                                        const user = await cloneUser(`${configuration.programTemplate.prefix}_${id}`,baseMetadata.baseUser,password,userRoles,engine);
+                                        const dataSetMetadata = await cloneDataSetMetadata(`${configuration.dataSetTemplate.prefix}_${id}`,configuration,baseMetadata.baseDataSetMetadata,user.id,engine);
+                                        const programMetadata = await cloneProgramMetadata(`${configuration.programTemplate.prefix}_${id}`,configuration,baseMetadata.baseProgramMetadata,user.id,engine);
+                                    
+                                        importingData.users = [
+                                            ...importingData.users,
+                                            ...[user]
+                                        ];
+                                        for ( const key in dataSetMetadata ) {
+                                            if ( importingData[key] ) {
+                                                importingData[key] = [
+                                                    ...importingData[key],
+                                                    ...dataSetMetadata[key]
+                                                ]
+                                            }
+                                            else {
+                                                importingData[key] = dataSetMetadata[key]
+                                            }
                                         }
-                                        else {
-                                            importingData[key] = dataSetMetadata[key]
+                                        for ( const key in programMetadata ) {
+                                            if ( importingData[key] ) {
+                                                importingData[key] = [
+                                                    ...importingData[key],
+                                                    ...programMetadata[key]
+                                                ]
+                                            }
+                                            else {
+                                                importingData[key] = programMetadata[key]
+                                            }
                                         }
                                     }
-                                    for ( const key in programMetadata ) {
-                                        if ( importingData[key] ) {
-                                            importingData[key] = [
-                                                ...importingData[key],
-                                                ...programMetadata[key]
-                                            ]
-                                        }
-                                        else {
-                                            importingData[key] = programMetadata[key]
-                                        }
+                                    catch(err) {
+                                        show({ message: 'An error occurred while cloning the data set and program.' });
+                                        setProcessing(false);
+                                        console.error(err);
                                     }
                                 }
 
-                                await mutate({ data: importingData });
+                                if (importingData.users.length > 0) {
+                                    await mutate({ data: importingData });
+                                }
                             }
                         }}
                     >
